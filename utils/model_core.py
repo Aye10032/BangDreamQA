@@ -1,6 +1,8 @@
+import os
 from typing import Optional, Any
 
 import streamlit as st
+from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 
 from utils.embedding_core import BgeM3Embeddings, BgeReranker
@@ -76,10 +78,13 @@ def load_reranker(
 
 @st.cache_resource(show_spinner='Loading GLM4-flash...')
 def load_llm(temperature: float = 0.3) -> ChatOpenAI:
+    load_dotenv()
+    api_key = os.getenv('GML_KEY')
+
     llm = ChatOpenAI(
         model='glm-4-flash',
         openai_api_base='https://open.bigmodel.cn/api/paas/v4/',
-        openai_api_key='',
+        openai_api_key=api_key,
         temperature=temperature,
     )
 
