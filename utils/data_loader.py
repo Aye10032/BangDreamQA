@@ -26,7 +26,7 @@ def load_txt(file_path: str | bytes) -> Optional[Document]:
 
 
 def main() -> None:
-    print(load_txt('../Bang/2_8_wrong.txt'))
+    print(load_txt('../data/Bang/2_8_wrong.txt'))
 
 
 if __name__ == '__main__':
