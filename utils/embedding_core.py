@@ -287,7 +287,7 @@ class BgeReranker(BaseModel):
             rerank_scores.extend(batch_scores)
 
         rerank_results = list(zip(rerank_scores, documents))
-        rerank_results = sorted(rerank_results, reverse=True)
+        rerank_results = sorted(rerank_results, key=lambda x: x[0], reverse=True)
 
         final_results = []
         for r in rerank_results:
