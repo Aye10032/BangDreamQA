@@ -1,5 +1,6 @@
 import streamlit as st
 from langchain_community.chat_message_histories import StreamlitChatMessageHistory
+from loguru import logger
 
 from utils.chat_core import answer
 
@@ -31,3 +32,4 @@ if prompt := st.chat_input('请输入问题'):
     result = chat_container.chat_message('assistant').write_stream(response)
 
     history.add_ai_message(result)
+    logger.info(f'ai: {result}')
