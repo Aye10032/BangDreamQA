@@ -7,8 +7,6 @@ from langchain_core.tools import BaseTool
 from loguru import logger
 from pydantic import BaseModel, Field
 
-import streamlit as st
-
 from utils.retriever_core import load_retriever
 
 
@@ -35,13 +33,12 @@ class VecstoreSearchTool(BaseTool):
                 f"活动期数: 第{doc.metadata['story_no']}期\n"
                 f"活动名称: {doc.metadata['title']}\n"
                 f"剧情章节: {doc.metadata['subtitle']}\n"
-                f"剧情内容: {doc.page_content}\n"
+                f"剧情内容: {doc.page_content.replace('~','\~')}\n"
             )
                 for doc in docs
             ]
             return '\n\n==========================\n\n'.join(formatted)
 
-        @st.cache_data(show_spinner='Search from storage...')
         def retrieve_from_vecstore(_query: str) -> str:
             retriever = load_retriever(self.db_path)
 

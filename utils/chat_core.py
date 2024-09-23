@@ -7,7 +7,10 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from utils.model_core import load_llm
 from utils.tool_core import VecstoreSearchTool
 
+import streamlit as st
 
+
+@st.cache_data(show_spinner='Search from storage...')
 def answer(
         _chat_history: BaseChatMessageHistory,
         db_path: str | bytes,
