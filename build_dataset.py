@@ -16,7 +16,7 @@ def init_vector_db() -> Chroma:
         model_name='BAAI/bge-m3',
         use_fp16=True,
         encode_kwargs={
-            'normalize_embeddings': False
+            'normalize_embeddings': True
         },
         local_load=True,
         local_path='./data/model/BAAI/bge-m3'
