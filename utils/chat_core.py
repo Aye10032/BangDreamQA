@@ -5,12 +5,10 @@ from langchain_core.messages import SystemMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 from utils.model_core import load_llm
+from utils.retriever_core import load_retriever
 from utils.tool_core import VecstoreSearchTool
 
-import streamlit as st
 
-
-@st.cache_data(show_spinner='Search from storage...')
 def answer(
         _chat_history: BaseChatMessageHistory,
         db_path: str | bytes,
@@ -28,9 +26,10 @@ def answer(
     )
 
     llm = load_llm()
-    search_tool = VecstoreSearchTool(db_path=db_path)
-
+    retriever = load_retriever(db_path)
+    search_tool = VecstoreSearchTool(retriever=retriever)
     messages = _chat_history.messages.copy()
+
     retrieval_chain = (
             {
                 "chat_history": itemgetter("chat_history"),

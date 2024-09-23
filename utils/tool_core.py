@@ -7,7 +7,7 @@ from langchain_core.tools import BaseTool
 from loguru import logger
 from pydantic import BaseModel, Field
 
-from utils.retriever_core import load_retriever
+from utils.retriever_core import RerankRetriever
 
 
 class VecstoreSearchInput(BaseModel):
@@ -22,7 +22,7 @@ class VecstoreSearchTool(BaseTool):
     handle_tool_error: bool = True
 
     target_collection: str = 'bang_dream'
-    db_path: str
+    retriever: RerankRetriever
 
     def _run(self, query: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
         """从向量数据库中进行查询操作"""
@@ -33,16 +33,14 @@ class VecstoreSearchTool(BaseTool):
                 f"活动期数: 第{doc.metadata['story_no']}期\n"
                 f"活动名称: {doc.metadata['title']}\n"
                 f"剧情章节: {doc.metadata['subtitle']}\n"
-                f"剧情内容: {doc.page_content.replace('~','\~')}\n"
+                f"剧情内容: {doc.page_content.replace('~', r'\~')}\n"
             )
                 for doc in docs
             ]
             return '\n\n==========================\n\n'.join(formatted)
 
         def retrieve_from_vecstore(_query: str) -> str:
-            retriever = load_retriever(self.db_path)
-
-            chain = retriever | RunnableLambda(format_docs)
+            chain = self.retriever | RunnableLambda(format_docs)
             output = chain.invoke(_query)
 
             return output
