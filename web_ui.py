@@ -6,6 +6,10 @@ from utils.chat_core import answer
 st.set_page_config(
     page_title='邦邦我',
     layout='centered',
+    menu_items={
+        'Report a bug': 'https://github.com/Aye10032/BangDreamQA/issues',
+        'About': 'https://github.com/Aye10032/BangDreamQA'
+    }
 )
 
 st.subheader('BangDream剧情问答')
