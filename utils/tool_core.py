@@ -24,6 +24,7 @@ class VecstoreSearchTool(BaseTool):
     handle_tool_error: bool = True
 
     target_collection: str = 'bang_dream'
+    db_path: str
 
     def _run(self, query: str, run_manager: Optional[CallbackManagerForToolRun] = None) -> str:
         """从向量数据库中进行查询操作"""
@@ -42,7 +43,7 @@ class VecstoreSearchTool(BaseTool):
 
         @st.cache_data(show_spinner='Search from storage...')
         def retrieve_from_vecstore(_query: str) -> str:
-            retriever = load_retriever()
+            retriever = load_retriever(self.db_path)
 
             chain = retriever | RunnableLambda(format_docs)
             output = chain.invoke(_query)

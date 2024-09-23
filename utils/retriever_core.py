@@ -1,10 +1,9 @@
+import os.path
 from typing import Optional, Literal
 
-from langchain.retrievers.multi_query import LineListOutputParser
 from langchain_chroma import Chroma
 from langchain_core.callbacks import CallbackManagerForRetrieverRun, AsyncCallbackManagerForRetrieverRun
 from langchain_core.documents import Document
-from langchain_core.prompts import PromptTemplate
 from langchain_core.retrievers import BaseRetriever
 from langchain_core.runnables import Runnable
 from langchain_core.vectorstores import VectorStore
@@ -12,7 +11,7 @@ from loguru import logger
 from pydantic import Field
 
 from utils.embedding_core import BgeReranker
-from utils.model_core import load_llm, load_embedding, load_reranker
+from utils.model_core import load_embedding, load_reranker
 
 GENERATE_QUESTION = """你是一名AI助手，现在你被给予了一个问题。
 你的任务是通过对用户问题生成多个视角，帮助用户克服基于距离的相似性搜索的一些局限性。
@@ -105,19 +104,19 @@ class RerankRetriever(BaseRetriever):
             logger.error(f'catch exception {e} while check rerank')
 
 
-def load_retriever() -> BaseRetriever:
+def load_retriever(base_path: str | bytes) -> RerankRetriever:
     embedding = load_embedding(
         'BAAI/bge-m3',
         encode_kwargs={
             "normalize_embeddings": True
         },
         local_load=True,
-        model_path='../data/model/BAAI/bge-m3'
+        model_path=os.path.join(base_path, 'model/BAAI/bge-m3')
     )
     vec_store = Chroma(
-        collection_name="bang_dream",
+        collection_name='bang_dream',
         embedding_function=embedding,
-        persist_directory="../data/chroma_db",
+        persist_directory=os.path.join(base_path, 'chroma_db')
     )
     reranker = load_reranker(
         'BAAI/bge-reranker-v2-m3',
@@ -125,29 +124,20 @@ def load_retriever() -> BaseRetriever:
             "normalize": True
         },
         local_load=True,
-        model_path='../data/model/BAAI/bge-reranker-v2-m3'
+        model_path=os.path.join(base_path, 'model/BAAI/bge-reranker-v2-m3')
     )
-
-    retriever_llm = load_llm()
-    query_prompt = PromptTemplate(
-        input_variables=["question"],
-        template=GENERATE_QUESTION,
-    )
-    parser = LineListOutputParser()
-    llm_chain = query_prompt | retriever_llm | parser
 
     retriever = RerankRetriever(
         vectorstore=vec_store,
         reranker=reranker,
-        multi_query=True,
-        llm_chain=llm_chain,
+        multi_query=False,
         search_kwargs={"k": 10}
     )
     return retriever
 
 
 def main() -> None:
-    retriever = load_retriever()
+    retriever = load_retriever('../data')
     result = retriever.invoke("摩卡和兰是什么关系？")
     print(result)
 
